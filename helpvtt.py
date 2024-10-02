@@ -1,11 +1,11 @@
 
 # ----------------------------------------------------------------------------------------------------------------
 
-# Provides user assistance with vttengine features
-def vttHelp(dispatcher, dynamicArgs, feature='all'):
+# Provides user assistance with vttengine functions
+def vttHelp(dispatcher, dynamicArgs, function='all'):
 
     # Prints all functions and defined dynamic arguments
-    if feature == 'all': 
+    if function == 'all': 
         print('Available functions: ')
         for key in dispatcher.keys():
             print(key)
@@ -15,7 +15,7 @@ def vttHelp(dispatcher, dynamicArgs, feature='all'):
         print('\nUse "help [function]" for more detailed information')
 
     # ---
-    elif feature == 'roll':
+    elif function == 'roll':
         print('''Options: [see dice grammar]
 
 Allows rolling a number of dice with a number of sides and optional modifiers.
@@ -26,7 +26,7 @@ Stores dice rolls in a rolls.md file.
 Example inputs: roll 5d8,   roll 6 d7 -1,   roll 50d10/2,   roll 2 d12''')
                 
     # ---
-    elif feature == 'rolls':
+    elif function == 'rolls':
         print('''Actions: display / delete
 
 Allows viewing or clearing past dice rolls stored in a rolls.md file.
@@ -34,7 +34,7 @@ Defaults to 'display' if used with no inputs.
 ''')
 
     # ---
-    elif feature == 'hp':
+    elif function == 'hp':
         print('''Input: [playerName] ; [hpEffect]
 
 Allows viewing or editing player hp values.
@@ -47,14 +47,14 @@ Example inputs: hp Playername 10,  hp Playername -10
 ''')
 
     # ---
-    elif feature == 'stats':
-        print('''Input: [none] / [see hp feature]
+    elif function == 'stats':
+        print('''Input: [none] / [see hp function]
 
 Allows viewing (or editing) all player hp values.
 (Currently) a synonym for "hp", meant for showing all hp values.''')
 
     # ---
-    elif feature == 'turn':
+    elif function == 'turn':
         print('''Input: [turnChange]
 
 Allows incrementing (or altering) a global turn counter
@@ -63,7 +63,7 @@ Defaults to +1 if used with no inputs.
 Example inputs: 1,   2,  -1,  -2''')
 
     # ---
-    elif feature == 'clock':
+    elif function == 'clock':
         print('''Options: 
 display / + / - / create / delete
 [clockName]
@@ -82,24 +82,24 @@ remove clock BoomTimer
 ''')
 
     # ---
-    elif feature == 'clocks':
-        print('''Options: [see clock feature]
+    elif function == 'clocks':
+        print('''Options: [see clock function]
          
 (Currently) a synonym for "clock", and should be interchangeable. 
 Also meant for showing all clocks with no input.''')
 
     # ---
-    elif feature == 'help':
+    elif function == 'help':
         print('''Options: [See dispatcher list]
 
 Prints general or function-specific help info.''')
 
     # ---
-    elif feature == 'end':
+    elif function == 'end':
         print('Exits VTTEngine')    
 
     # ---
     else:
-        print(f'Feature {feature} not found in help docs')
+        print(f'function {function} not found in help docs')
 
 # ----------------------------------------------------------------------------------------------------------------

@@ -1,6 +1,8 @@
 
 import os
 import re
+# from collections import defaultdict
+# from functools import partial
 
 from dice import roll, rolls
 from clocks import clock
@@ -12,19 +14,22 @@ from helpvtt import vttHelp
 
 # Primary VTT interface/logic loop using a dictionary of functions callable by user input
 def interact():
+
+    # Handles synonyms of functions and most function calling
     dispatcher = {
-        'roll':     roll, 
-        'rolls':    rolls, 
-        'hp':       hp, 
-        'stats':    hp, 
-        'turn':     turn, 
-        'clock':    clock, 
-        'clocks':   clock, 
+        'roll':     roll,
+        'rolls':    rolls,
+        'hp':       hp,
+        'stats':    hp,
+        'turn':     turn,
+        'clock':    clock,
+        'clocks':   clock,
         'help':     vttHelp,
         'end':      exit
     }
+
     # Handles synonyms or alternative orders of input arguments
-    dynamicArgs = {
+    options = {
         'delete':   'delete',
         'remove':   'delete',
         'clear':    'delete',
@@ -40,49 +45,47 @@ def interact():
     while action != 'end':
 
         # Prompts user for input and splits input string into arguments for processing
-        print('\nInput action: ')
-        inputString = input()
+        inputString = input('\nInput action: ')
         action = inputString.split()
+        function = 'help'
+        option = 'all'
+        
         # Clears screen to maintain readability and consistent user experience
         os.system('cls||clear')
         print(f'Input: {inputString}\n')
 
-        # Switches the order of certain arguments for grammatically comfortable input
-        if (len(action) > 1) and (action[0] in dynamicArgs):
-            switchTemp = dynamicArgs[action[0]]
-            action[0] = action[1]
-            action[1] = switchTemp
-        # Replaces certain arguments with synonyms
-        elif (len(action) > 1) and (action[1] in dynamicArgs):
-            action[1] = dynamicArgs[action[1]]
+        # Assigns variables by permutations of input argument order for grammatically comfortable input
+        match action:
+            case ['end']: break
+            case []: pass
+            case ['help' as function]: pass 
+            case ['help' as function, option] | [option, 'help' as function]: pass
+            case [function, option, *args] if function in dispatcher: pass
+            case [option, function, *args] if function in dispatcher: pass
+            # Calls functions with no arguments if none are given
+            case [function] if function in dispatcher:
+                dispatcher[function]()
+                continue
+            # Provides user feedback if no function-call matches are found for a given input
+            case _: 
+                print('Function not found in dispatcher\n')
 
-        # Calls functions with dispatcher
-        # Handles special input cases first, does nothing but print feedback if input is unusable
-        if action[0] not in dispatcher:
-            print('Function not found in dispatcher\n')
-            
-        # Provides user assistance with vttengine features
-        elif action[0] == 'help':
-            dispatcher[action[0]](dispatcher, dynamicArgs, *action[1:])
-
-        # Calls dispatcher without attempting to pass arguments if none are provided 
-        elif len(action)==1:
-            dispatcher[action[0]]()
-            
-        # Restructures input arguments if the user is attempting to roll dice
-        # Uses regex to parse a flexible pattern of potential dice roll inputs
-        # Example inputs: 6d6, 5 d4 +1, 3d20/2, 1d8**2, 5 2, 100 d4-1
-        elif action[0] == 'roll':
-            diceArgs = re.split(rf'(\d+)[ ]?[d]?(\d+)[ ]?(\S+\d+)?', inputString.split(' ', 1)[1])
-            dispatcher[action[0]](*diceArgs[1:-1])
-
-        # Handles special input cases for the clock function
-        elif action[0] == 'clock':
-            dispatcher[action[0]](*action[1:], inputString)
-
-        # Calls a function with the first input word and the rest of the input as arguments
-        else:
-            dispatcher[action[0]](*action[1:])
+        # Calls functions with dispatcher and handles special argument cases
+        match function:
+            # Uses regex to parse a flexible pattern of potential dice roll inputs
+            # Example inputs: 6d6, 5 d4 +1, 3d20/2, 1d8**2, 5 2, 100 d4-1
+            case 'roll':
+                diceArgs = re.split(rf'(\d+)[ ]?[d]?(\d+)[ ]?(\S+\d+)?', inputString.split(' ', 1)[1])[1:-1]
+                dispatcher[function](*diceArgs)
+            # Handles extended arguments and stage definition strings for the clock function
+            case 'clock':
+                dispatcher[function](options[option], *args, inputString)
+            # Passes additional meta-programming information to the help function
+            case 'help':
+                dispatcher[function](dispatcher, options, option)
+            # Calls all other functions with optionally aliased arguments
+            case _:
+                dispatcher[function](options.get(option, option), *args)
 
 # ----------------------------------------------------------------------------------------------------------------
 
